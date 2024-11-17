@@ -22,15 +22,15 @@ class WebSecurityConfig {
     @Bean
     @Throws(Exception::class)
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-        http.csrf().disable()
-            .authorizeRequests()
-                .antMatchers("/temperature-converter/**").hasRole("USER")
-                .antMatchers("/error").permitAll()
-                .anyRequest().authenticated()
-            .and()
-            .httpBasic()
-            .and()
-            .logout()
+        http.csrf() { it.disable() }
+            .authorizeRequests{auth -> 
+                auth
+                    .requestMatchers("/temperature-converter/**").hasRole("USER")
+                    .requestMatchers("/error").permitAll()
+                    .anyRequest().authenticated()
+            }   
+            .httpBasic(Customizer.withDefaults())
+            .logout(Customizer.withDefaults())
         return http.build()
     }
     
@@ -46,7 +46,8 @@ class WebSecurityConfig {
             .password(passwordEncoder().encode("pass2"))
             .roles("USER")
             .build()
-        return InMemoryUserDetailsManager(user)
+
+        return InMemoryUserDetailsManager(user1, user2)
     }
 
 
